@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.book.libary.model.Book;
+import com.book.libary.repository.BookRepository;
 import com.book.libary.service.BookService;
 
 @RestController
@@ -20,14 +22,19 @@ import com.book.libary.service.BookService;
 public class BookController {
 
     private BookService bookService;
+    private BookRepository bookRepository;
 
     public BookController(BookService bookService){
         this.bookService = bookService;
     }
 
     @GetMapping
-    public List<Book> getALlBooks(){
-        return bookService.getAllBooks();
+    public List<Book> getALlBooks(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "5") int size,
+        @RequestParam(defaultValue = "title") String sortBy
+    ){
+        return bookService.getAllBooks(page, size, sortBy);
     }
 
     @GetMapping("/{id}")
@@ -53,6 +60,11 @@ public class BookController {
     public ResponseEntity<Book> deleteBook(@PathVariable Long id){
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public List<Book> searchBooks(@RequestParam String keyword){
+        return bookRepository.searchBook(keyword);
     }
 
 }
